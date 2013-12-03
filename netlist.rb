@@ -2,6 +2,13 @@ require 'rubygems'
 require 'subexec'
 require 'open-uri'
 require 'json'
+require 'netaddr'
+
+def range_to_cidr(startr, endr)
+  return ["ipv6"] if startr.include?(":")
+  ip_net_range = NetAddr.range(startr,endr,:Inclusive => true, :Objectify => false)
+  NetAddr.merge(ip_net_range, :Objectify => false, :Short => true)
+end
 
 target_org = ARGV[0]
 
@@ -38,7 +45,7 @@ end
 orgs.each do |k, v|
   puts "----- #{k} (#{v[:handle]}) -----"
   v[:nets].each do |netk, netv|
-    puts "\n* #{netk}\n  #{netv[:start]} - #{netv[:end]}\n"
+    puts "\n* #{netk}\n  #{netv[:start]} - #{netv[:end]}   => #{range_to_cidr(netv[:start], netv[:end]).join(', ')}\n"
   end
   puts "\n"
 end
